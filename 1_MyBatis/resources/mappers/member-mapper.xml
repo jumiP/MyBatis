@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="memberMapper">
+
+<!-- 	<select id="loginMember" parameterType="member.model.vo.Member" resultType="member.model.vo.Member"> -->
+	<select id="loginMember" parameterType="member.model.vo.Member" resultMap="memberResultSet">
+		select * from member 
+		where user_id = #{userId} and user_pwd = #{userPwd} and m_status = 'Y'
+	</select>
+	<!-- 
+		id : 외부(DAO)에서 참조하기 위한 쿼리문의 고유 아이디(구분자)
+		parameterType : 구문에 전달될 파라미터의 패키지 경로를 포함한 전체 클래스 명 혹은 별칭
+		resultType/resultMap : 쿼리 실행 후 조회된 결과를 자바에서 사용할 수 있게 하는 객체
+	-->
+	
+	<!-- DB의 컬럼과 클래스의 필드를 매핑시켜줄 때 사용 -->
+	<resultMap type="member.model.vo.Member" id="memberResultSet">
+		<id column="USER_ID" property="userId"/> <!-- 기본 키 -->
+		<result column="USER_PWD" property="userPwd"/> <!-- 일반 컬럼 -->
+		<result column="USER_NAME" property="userName"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="EMAIL" property="email"/>
+		<result column="BIRTHDAY" property="birthDay"/>
+		<result column="GENDER" property="gender"/>
+		<result column="PHONE" property="phone"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="ENROLL_DATE" property="enrollDate"/>
+		<result column="UPDATE_DATE" property="updateDate"/>
+		<result column="M_STATUS" property="mStatus"/>
+	</resultMap>
+</mapper>
