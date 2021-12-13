@@ -28,4 +28,31 @@
 		<result column="UPDATE_DATE" property="updateDate"/>
 		<result column="M_STATUS" property="mStatus"/>
 	</resultMap>
+	
+	<insert id="insertMember" parameterType="member.model.vo.Member">
+		insert into member
+		values(#{userId}, #{userPwd}, #{userName}, #{nickName}, #{email}, #{birthDay}, #{gender}, #{phone}, #{address},
+				sysdate, sysdate, default)
+	</insert>
+	
+	<update id="updateMember" parameterType="Member">
+		update member
+		set user_name=#{userName}, nickName=#{nickName}, email=#{email}, birthDay=#{birthDay},
+			gender=#{gender}, phone=#{phone}, address=#{address}
+		where user_id=#{userId}
+	</update>
+	
+	<update id="updatePwd" parameterType="map">
+		update member
+		set user_pwd=#{newPwd}
+		where user_id=#{userId} and user_pwd=#{userPwd}
+	</update>
+	
+	<update id="deleteMember" parameterType="string" >
+		update member
+		set m_status='N'
+		where user_id = #{userId}
+	</update>
+	
+	
 </mapper>

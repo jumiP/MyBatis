@@ -1,6 +1,8 @@
 package member.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,16 +15,16 @@ import member.model.service.MemberService;
 import member.model.vo.Member;
 
 /**
- * Servlet implementation class LoginServlet
+ * Servlet implementation class UpdatePwdServlet
  */
-@WebServlet("/login.me")
-public class LoginServlet extends HttpServlet {
+@WebServlet("/mPwdUpdate.me")
+public class UpdatePwdServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public LoginServlet() {
+    public UpdatePwdServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -31,22 +33,25 @@ public class LoginServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String userId = request.getParameter("userId");
+		HttpSession session = request.getSession();
+		Member m = (Member)session.getAttribute("loginUser");
+		String userId = m.getUserId();
 		String userPwd = request.getParameter("userPwd");
+		String newPwd = request.getParameter("newPwd");
 		
-		Member m = new Member();
-		m.setUserId(userId);
-		m.setUserPwd(userPwd);
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("userId", userId);
+		map.put("userPwd", userPwd);
+		map.put("newPwd", newPwd);
 		
 		try {
-			Member loginUser = new MemberService().selectMember(m);
-			
-			HttpSession session = request.getSession();
-			session.setAttribute("loginUser", loginUser);
-			session.setMaxInactiveInterval(600);  
-			
+			new MemberService().updatePwd(map);
+			Member mem = new Member();
+			mem.setUserId(userId);
+			mem.setUserPwd(newPwd);
+			Member member = new MemberService().selectMember(mem);
+			session.setAttribute("loginUser", member);
 			response.sendRedirect(request.getContextPath());
-			
 		} catch (MemberException e) {
 			request.setAttribute("message", e.getMessage());
 			request.getRequestDispatcher("WEB-INF/views/common/errorPage.jsp").forward(request, response);

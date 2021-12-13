@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="boardMapper">
+	<select id="getListCount" resultType="_int">
+		select count(*)
+		from board
+		where b_status='Y'
+	</select>
+	
+	<select id="selectBoardList" resultMap="boardResultSet">
+		select bId, btype, btitle, bcontent, bwriter, nickname, bcount, b_create_date, b_modify_date, b_status
+		from board
+			join member on(bwriter = user_id)
+		where b_status='Y'
+		order by bid desc
+	</select>
+	
+	<resultMap type="Board" id="boardResultSet">
+		<id column="BID" property="bId"/> <!-- 기본 키 -->
+		<result column="BTYPE" property="bType"/> <!-- 일반 컬럼 -->
+		<result column="BTITLE" property="bTitle"/>
+		<result column="BCONTENT" property="bContent"/>
+		<result column="BWRITER" property="bWriter"/>
+		<result column="NICKNAME" property="nickName"/> <!-- JOIN -->
+		<result column="BCOUNT" property="bCount"/>
+		<result column="B_CREATE_DATE" property="bCreateDate"/>
+		<result column="B_MODIFY_DATE" property="bModifyDate"/>
+		<result column="B_STATUS" property="bStatus"/>
+	</resultMap>
+	
+	<update id="updateCount" parameterType="_int">
+		update board
+		set bcount = bcount + 1
+		where bid=#{bId}
+	</update>
+	
+	<select id="selectBoardDetail" parameterType="_int" resultMap="boardResultSet2">
+		select bid, btype, btitle, bcontent, bwriter, m.nickname b_nickname, bcount,
+			b_create_date, b_modify_date, b_status, rid, rcontent, ref_bid, rwriter, m2.nickname as r_nickname,
+			r_create_date, r_modify_date, r_status
+		from board
+			join member m on(bwriter = m.user_id)
+			left join reply on(ref_bid = bid)
+			left join member m2 on(rwriter = m2.user_id)
+		where bid = #{bId} and b_status='Y' 
+		order by rid desc
+	</select>
+	
+	<resultMap type="Board" id="boardResultSet2">
+		<id column="BID" property="bId"/> 
+		<result column="BTYPE" property="bType"/> 
+		<result column="BTITLE" property="bTitle"/>
+		<result column="BCONTENT" property="bContent"/>
+		<result column="BWRITER" property="bWriter"/>
+		<result column="B_NICKNAME" property="nickName"/> 
+		<result column="BCOUNT" property="bCount"/>
+		<result column="B_CREATE_DATE" property="bCreateDate"/>
+		<result column="B_MODIFY_DATE" property="bModifyDate"/>
+		<result column="B_STATUS" property="bStatus"/>
+		<collection property="replyList" resultMap="replyResultSet" javaType="arrayList"/>
+	</resultMap>
+	
+	<!-- 댓글 -->
+	<resultMap type="Reply" id="replyResultSet">
+		<id column="RID" property="rId"/>
+		<result column="RCONTENT" property="rContent"/>
+		<result column="REF_BID" property="refBid"/>
+		<result column="RWRITER" property="rWriter"/>
+		<result column="R_NICKNAME" property="nickName"/> 
+		<result column="R_CREATE_DATE" property="rCreateDate"/>
+		<result column="R_MODIFY_DATE" property="rModifyDate"/>
+		<result column="R_STATUS" property="rStatus"/>
+	</resultMap>
+	
+	<select id="getSearchResultListCount" resultType="_int">
+		select count(*)
+		from board b
+			join member on(bwriter = user_id)
+		where b_status='Y'
+		<if test="condition == 'writer'">
+			and nickname=#{value}
+		</if>
+		<if test="condition == 'title'">
+		 	 and btitle like '%' || #{value} || '%'
+		</if>
+		<if test="condition == 'content'">
+		 	 and bcontent like '%' || #{value} || '%'
+		</if>
+	</select>
+	
+	<select id="selectSearchResultList" parameterType="hashmap" resultMap="boardResultSet">
+		select bId, btype, btitle, bcontent, bwriter, nickname, bcount, b_create_date, b_modify_date, b_status
+		from board
+			join member on(bwriter = user_id)
+		where b_status='Y'
+		<choose>
+			<when test="condition == 'writer'">
+				and nickname = #{value}
+			</when>
+			<when test="condition == 'title'">
+				and btitle like '%' || #{value} || '%'
+			</when>
+			<otherwise>
+				and bcontent like '%' || #{value} || '%'
+			</otherwise>
+		</choose>
+		order by bid desc
+	</select>
+	
+	
+</mapper>

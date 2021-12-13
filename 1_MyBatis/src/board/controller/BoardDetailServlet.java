@@ -1,4 +1,4 @@
-package member.controller;
+package board.controller;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -6,23 +6,22 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import member.model.exception.MemberException;
-import member.model.service.MemberService;
-import member.model.vo.Member;
+import board.model.exception.BoardException;
+import board.model.service.BoardService;
+import board.model.vo.Board;
 
 /**
- * Servlet implementation class LoginServlet
+ * Servlet implementation class BoardDetailServlet
  */
-@WebServlet("/login.me")
-public class LoginServlet extends HttpServlet {
+@WebServlet("/selectOne.bo")
+public class BoardDetailServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public LoginServlet() {
+    public BoardDetailServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -31,23 +30,20 @@ public class LoginServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String userId = request.getParameter("userId");
-		String userPwd = request.getParameter("userPwd");
-		
-		Member m = new Member();
-		m.setUserId(userId);
-		m.setUserPwd(userPwd);
+		int bId = Integer.parseInt(request.getParameter("bId"));
 		
 		try {
-			Member loginUser = new MemberService().selectMember(m);
+			Board b = new BoardService().selectBoardDetail(bId);
 			
-			HttpSession session = request.getSession();
-			session.setAttribute("loginUser", loginUser);
-			session.setMaxInactiveInterval(600);  
+			int rCount = 0;
+			if(!b.getReplyList().isEmpty()) {
+				rCount = b.getReplyList().size();
+			}
+			request.setAttribute("b", b);
+			request.setAttribute("rCount", rCount);
+			request.getRequestDispatcher("WEB-INF/views/board/boardDetail.jsp").forward(request, response);
 			
-			response.sendRedirect(request.getContextPath());
-			
-		} catch (MemberException e) {
+		} catch (BoardException e) {
 			request.setAttribute("message", e.getMessage());
 			request.getRequestDispatcher("WEB-INF/views/common/errorPage.jsp").forward(request, response);
 		}

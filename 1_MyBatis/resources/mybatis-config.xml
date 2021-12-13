@@ -7,6 +7,12 @@
 	 	plugins?,environments?,databaseIdProvider?,mappers?)".	// 이 순서대로 써주기
  -->
 	<properties resource="/driver.properties"/>
+	
+	<typeAliases>
+		<typeAlias type="member.model.vo.Member" alias="Member"/>
+		<typeAlias type="board.model.vo.Board" alias="Board"/>
+		<typeAlias type="board.model.vo.Reply" alias="Reply"/>
+	</typeAliases>
 		
 	<!-- DB에 연결할 설정에 대한 정보 선언 -->
 	<environments default="development">
@@ -50,6 +56,7 @@
 	<!-- mapper파일들을 등록 -->
 	<mappers>
 		<mapper resource="/mappers/member-mapper.xml"/>
+		<mapper resource="/mappers/board-mapper.xml"/>
 	</mappers>
 	
 

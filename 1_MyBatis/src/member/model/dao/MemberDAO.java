@@ -1,5 +1,7 @@
 package member.model.dao;
 
+import java.util.HashMap;
+
 import org.apache.ibatis.session.SqlSession;
 
 import member.model.exception.MemberException;
@@ -26,6 +28,48 @@ public class MemberDAO {
 		}
 		
 		return member;
+	}
+
+	public void insertMember(SqlSession session, Member m) throws MemberException {
+		int result = session.insert("memberMapper.insertMember", m);
+		
+		if(result <= 0) {	// 에러 강제 발생
+			session.rollback();
+			session.close();
+			throw new MemberException("회원가입에 실패하였습니다.");
+		}
+		
+//		return result;
+	}
+
+	public void updateMember(SqlSession session, Member m) throws MemberException {
+		int result = session.update("memberMapper.updateMember", m);
+		
+		if(result <= 0) {
+			session.rollback();
+			session.close();
+			throw new MemberException("회원정보 수정에 실패하였습니다.");
+		}
+	}
+
+	public void updatePwd(SqlSession session, HashMap<String, String> map) throws MemberException {
+		int result = session.update("memberMapper.updatePwd", map);
+		
+		if(result <= 0) {
+			session.rollback();
+			session.close();
+			throw new MemberException("비밀번호 수정에 실패하였습니다.");
+		}
+	}
+
+	public void deleteMember(SqlSession session, String userId) throws MemberException {
+		int result = session.update("memberMapper.deleteMember", userId);
+		
+		if(result <= 0) {
+			session.rollback();
+			session.close();
+			throw new MemberException("회원 탈퇴에 실패하였습니다.");
+		}
 	}
 
 }
